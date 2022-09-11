@@ -12,17 +12,15 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '0.6-SNAPSHOT'
+    id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
-    id 'org.cadixdev.licenser' version '0.5.0'
     id "signing"
-    id "maven"
     id "com.modrinth.minotaur" version "1.1.0"
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -48,17 +46,13 @@ if (project.hasProperty("sign")) {
     }
 }
 
-license {
-    header = rootProject.file("LICENSE")
-}
-
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    ["fabric-command-api-v1"].forEach {
+    ["fabric-command-api-v2"].forEach {
         include(modImplementation(fabricApi.module(it, project.fabric_version)))
     }
 
@@ -83,10 +77,8 @@ tasks.withType(JavaCompile).configureEach {
     // The Minecraft launcher currently installs Java 8 for users, so your mod probably wants to target Java 8 too
     // JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
     // We'll use that if it's available, but otherwise we'll use the older option.
-    def targetVersion = 8
-    if (JavaVersion.current().isJava9Compatible()) {
-        it.options.release = targetVersion
-    }
+    def targetVersion = 17
+    it.options.release = targetVersion
 }
 
 java {
@@ -109,56 +101,6 @@ jar {
 
 artifacts {
     archives jar, sourcesJar, javadocJar
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            def ossrhUsername = "OroArmor"
-            def ossrhPassword = project.hasProperty("ossrhPassword") ? project.property("ossrhPassword") : System.getenv("OSSRH_PASSWORD")
-
-            beforeDeployment {
-                MavenDeployment deployment -> signing.signPom(deployment)
-            }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-            pom.project {
-                name 'Custom Item Range Combination'
-                packaging 'jar'
-                // optionally artifactId can be defined here
-                description 'Allows for the changing of how far item entities combine in Minecraft.'
-                url 'http://github.com/OroArmor/CustomItemRangeCombination'
-
-                scm {
-                    connection 'scm:git:git://github.com/OroArmor/CustomItemRangeCombination.git'
-                    developerConnection 'scm:git:ssh://github.com:OroArmor/CustomItemRangeCombination.git'
-                    url 'http://github.com/OroArmor/CustomItemRangeCombination'
-                }
-
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'https://mit-license.org/'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'OroArmor'
-                        name 'Eli Orona'
-                        email 'eliorona@live.com'
-                        url "oroarmor.com"
-                    }
-                }
-            }
-        }
-    }
 }
 
 curseforge {

@@ -24,16 +24,16 @@
 
 package com.oroarmor.custom_item_range_combination;
 
-import java.io.File;
-
-import com.google.common.collect.ImmutableList;
 import com.oroarmor.config.Config;
 import com.oroarmor.config.ConfigItem;
 import com.oroarmor.config.ConfigItemGroup;
 import com.oroarmor.config.command.ConfigCommand;
 
+import com.google.common.collect.ImmutableList;
+import java.io.File;
+
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class Mod implements ModInitializer {
@@ -61,6 +61,6 @@ public class Mod implements ModInitializer {
 		CONFIG.readConfigFromFile();
 		CONFIG.saveConfigToFile();
 
-		CommandRegistrationCallback.EVENT.register(new ConfigCommand(CONFIG)::register);
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> new ConfigCommand(CONFIG).register(dispatcher, environment.dedicated));
 	}
 }
